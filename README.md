@@ -1,5 +1,9 @@
 # AEGEE Agora Transcriber
 
+> [!NOTE]
+> Based on the original private repo to ensure that no private AEGEE information is leaked: https://github.com/MateoGlzAlon/agora-transcriber
+
+
 A fully local, four-stage audio transcription pipeline for AEGEE Agora meeting recordings.  
 No external APIs are required — everything runs inside Docker.
 
