@@ -1,0 +1,12 @@
+services:
+  app:
+    build: ./app
+    container_name: agora-app
+    volumes:
+      - ./data:/data
+      - whisper_cache:/root/.cache/whisper
+    env_file:
+      - .env
+
+volumes:
+  whisper_cache:

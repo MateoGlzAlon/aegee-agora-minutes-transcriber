@@ -1,0 +1,21 @@
+# Transcription substitution rules
+# Format: wrong>correct  (# starts a comment, blank lines are ignored)
+# Rules are applied in order with whole-word matching (word boundaries).
+# Multi-word phrases are supported: Clarity Director>Comité Directeur
+
+# ── Common Whisper mishearings of AEGEE ──────────────────────────────────────
+IJ>AEGEE
+IHG>AEGEE
+Asia>AEGEE
+
+# ── Names ────────────────────────────────────────────────────────────────────
+Bilar>Bilal
+Cijan>Ceyhan
+
+# ── AEGEE bodies & terms ─────────────────────────────────────────────────────
+Clarity Director>Comité Directeur
+HSRC>HRC
+DPDC>DPC
+
+# ── City / Antenna names ─────────────────────────────────────────────────────
+Rzeczaków>Krakow

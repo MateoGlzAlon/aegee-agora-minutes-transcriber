@@ -1,0 +1,9 @@
+# Segments file for: example.mp4  (or example.wav, etc.)
+# One segment per line:  Label -> START - END
+# Timestamps: MM:SS or H:MM:SS
+#
+# Lines starting with '#' and blank lines are ignored.
+
+Why do you consider the topic important for AEGEE? -> 0:00 - 1:34
+How is your topic related to AEGEE's mission, vision and means?-> 1:34 - 2:30
+What do you imagine as a potential outcome of the discussion? -> 2:30 - 3:30
