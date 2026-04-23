@@ -9,6 +9,15 @@ No external APIs are required — everything runs inside Docker.
 
 ---
 
+## Prerequisites
+
+Before running the pipeline, you only need to have the following installed:
+
+* Docker
+* Docker Compose
+
+---
+
 ## Quick Start
 
 ```bash
@@ -18,10 +27,12 @@ make build
 # 2. Place your audio file(s) in  data/03_audio/
 #    or your video file(s)    in  data/01_video/
 
-# 3. Run the full pipeline (You can also run it by stages, check futher down in the README)
+# 3. Create a segments file (stage 2) for having different sections (optional but much better)
+
+# 4. Run the full pipeline (You can also run it by stages, check futher down in the README)
 make all
 
-# 4. Collect results from  data/05_output/
+# 5. Collect results from  data/05_output/
 ```
 
 The pipeline is **idempotent** — already-completed files are skipped on every run.  
