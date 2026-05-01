@@ -13,27 +13,36 @@ No external APIs are required — everything runs inside Docker.
 
 Before running the pipeline, you only need to have the following installed:
 
-* Docker
-* Docker Compose
+* Docker (with Docker Compose)
+* Python 3 — needed on the **host** to run `make` targets (`python3` on Linux/macOS, `python` on Windows). If the command differs on your system, override it: `make up PYTHON=python`
 
 ---
 
 ## Quick Start
 
 ```bash
-# 1. Build the Docker image (first time only, or after code changes)
-make build
-
-# 2. Place your audio file(s) in  data/03_audio/
+# 1. Place your audio file(s) in  data/03_audio/
 #    or your video file(s)    in  data/01_video/
 
-# 3. Create a segments file (stage 2) for having different sections (optional but much better)
+# 2. Create a segments file (stage 2) for having different sections (optional but much better)
 
-# 4. Run the full pipeline (You can also run it by stages, check futher down in the README)
-make all
+# 3. Start the persistent daemon — builds the image on first run, then loads
+#    Whisper once and keeps it in memory for all subsequent stage calls.
+make up
+
+# 4. Run stages (each dispatches to the already-loaded model — no reload)
+make extract      # video → audio
+make segment      # split by time definitions
+make transcribe   # audio → raw transcript
+make enhance      # apply substitution rules
 
 # 5. Collect results from  data/05_output/
+
+# 6. Stop the daemon when you are done for the day
+make down
 ```
+
+> **Without the daemon** every `make transcribe` (or `make all`) starts a fresh container and reloads the Whisper model (~1–2 min). With `make up` the model loads once; every subsequent stage call is dispatched instantly to the running container.
 
 The pipeline is **idempotent** — already-completed files are skipped on every run.  
 You can re-run any stage at any time without duplicating work.
@@ -45,12 +54,14 @@ You can re-run any stage at any time without duplicating work.
 | Command | Description |
 |---|---|
 | `make build` | Build the Docker image |
+| `make up` | Start the persistent daemon (builds image if needed, loads Whisper once) |
+| `make down` | Stop all containers (including the daemon) |
 | `make extract` | Stage 1 — convert video files to audio (fast) |
 | `make segment` | Stage 2 — split audio by time-segment definitions (fast) |
 | `make transcribe` | Stage 3 — transcribe audio with Whisper (slow, CPU-heavy) |
 | `make enhance` | Stage 4 — apply substitution rules to raw transcripts (fast) |
 | `make all` | Run all four stages in order (skips already-done files) |
-| `make run` | Run the full pipeline in a single Docker container invocation |
+| `make run` | Run the full pipeline in a single one-shot container |
 | `make status` | Show which files have been processed in each stage |
 | `make logs` | Follow all service logs |
 | `make clean` | Remove final output files (`data/05_output/`) |
@@ -59,6 +70,8 @@ You can re-run any stage at any time without duplicating work.
 | `make reset` | Full cleanup: stop containers + remove all generated files |
 | `make purge` | Reset + remove Docker volumes and images |
 | `make everything` | Clean slate → build → run all stages |
+
+Each stage target (`extract`, `segment`, `transcribe`, `enhance`, `all`) automatically uses the daemon when it is running and falls back to a one-shot container when it is not — so all targets work with or without `make up`.
 
 ---
 
@@ -249,8 +262,10 @@ For segmented files, sections are separated by headers and dividers:
 
 ### Model caching
 
-The Whisper model is downloaded from the internet on first use and then cached in a named Docker volume (`whisper_cache`).  
-Subsequent runs — including container restarts — load the model from the cache without re-downloading.
+The Whisper model is baked into the Docker image at build time (`make build`).  
+It is never downloaded again, even after a `docker system prune` or `make purge`.
+
+A named Docker volume (`whisper_cache`) is still mounted so the model can be shared if you override the image, but the image itself always carries the weights.
 
 ### Notes
 
@@ -344,6 +359,7 @@ Change the model in `.env` and rebuild (`make build`) to apply.
 .
 ├── app/
 │   ├── main.py           # Entry point and pipeline orchestration
+│   ├── daemon.py         # Long-lived daemon (keeps Whisper in memory between stages)
 │   ├── transcription.py  # Whisper-based audio transcription
 │   ├── video.py          # Video to audio extraction
 │   ├── segmentation.py   # Audio splitting by time segments
@@ -351,6 +367,8 @@ Change the model in `.env` and rebuild (`make build`) to apply.
 │   ├── entrypoint.sh     # Docker entrypoint
 │   ├── requirements.txt
 │   └── Dockerfile
+├── scripts/
+│   └── run.py            # Cross-platform helper called by the Makefile
 ├── data/
 │   ├── 01_video/            # Input video files
 │   ├── 02_segments/         # Segment definition files
@@ -371,8 +389,11 @@ Change the model in `.env` and rebuild (`make build`) to apply.
 **Transcription is very slow**  
 Whisper runs on CPU by default inside Docker. Use a smaller model (`WHISPER_MODEL=small`) or enable GPU pass-through if your host has a CUDA-capable GPU.
 
-**Whisper model is re-downloaded every time**  
-The `whisper_cache` Docker volume persists the model between runs. If you accidentally deleted it (`make purge`), the model is re-downloaded once on the next `make transcribe` or `make all`.
+**Transcription is slow on every run**  
+Use `make up` to start the persistent daemon. The Whisper model loads once at startup and stays in memory — subsequent `make transcribe` calls (or any stage) are dispatched to the already-warm model without reloading.
+
+**Whisper model is re-downloaded after `make purge`**  
+The model is baked into the Docker image during `make build`, so it is never re-downloaded from the internet. After a purge, `make build` (or `make up`) re-builds the image with the model already included.
 
 **Enhance produces no changes**  
 Check that `data/substitutions.txt` exists and contains valid `original>replacement` lines. Run `make status` to confirm the enhance stage ran.

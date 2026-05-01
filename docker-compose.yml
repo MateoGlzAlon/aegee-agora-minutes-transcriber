@@ -1,12 +1,17 @@
 services:
   app:
-    build: ./app
+    build:
+      context: ./app
+      args:
+        WHISPER_MODEL: ${WHISPER_MODEL:-medium}
+    image: agora-transcriber-app
     container_name: agora-app
     volumes:
       - ./data:/data
       - whisper_cache:/root/.cache/whisper
     env_file:
       - .env
+    command: daemon   # default: long-lived daemon; overridden by `make extract` etc.
 
 volumes:
   whisper_cache:
