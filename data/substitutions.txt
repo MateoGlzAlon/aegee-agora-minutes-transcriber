@@ -5,17 +5,21 @@
 
 # ── Common Whisper mishearings of AEGEE ──────────────────────────────────────
 IJ>AEGEE
+IG>AEGEE
 IHG>AEGEE
 Asia>AEGEE
+AJA>AEGEE
 
 # ── Names ────────────────────────────────────────────────────────────────────
 Bilar>Bilal
 Cijan>Ceyhan
+Zosia>Zofia
 
 # ── AEGEE bodies & terms ─────────────────────────────────────────────────────
 Clarity Director>Comité Directeur
 HSRC>HRC
 DPDC>DPC
+ACRA>Agora
 
 # ── City / Antenna names ─────────────────────────────────────────────────────
 Rzeczaków>Krakow
