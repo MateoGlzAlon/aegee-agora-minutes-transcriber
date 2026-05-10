@@ -1,1 +1,5 @@
 # Generated data directories are kept in git via their own .gitignore files
+
+.venv/
+
+app/__pycache__/

@@ -4,17 +4,20 @@ import sys
 import time
 import argparse
 from datetime import datetime
+from pathlib import Path
 
 from video import extract_audio, VIDEO_EXTENSIONS
 from segmentation import parse_segments_file, split_audio
 
-VIDEO_DIR = "/data/01_video"
-SEGMENTS_DIR = "/data/02_segments"
-AUDIO_DIR = "/data/03_audio"
-RAW_DIR = "/data/04_raw"
-OUTPUT_DIR = "/data/05_output"
-STATUS_DIR = "/data/status"
-SUBSTITUTIONS_FILE = "/data/substitutions.txt"
+_DATA = Path(__file__).resolve().parent.parent / "data"
+
+VIDEO_DIR          = str(_DATA / "01_video")
+SEGMENTS_DIR       = str(_DATA / "02_segments")
+AUDIO_DIR          = str(_DATA / "03_audio")
+RAW_DIR            = str(_DATA / "04_raw")
+OUTPUT_DIR         = str(_DATA / "05_output")
+STATUS_DIR         = str(_DATA / "status")
+SUBSTITUTIONS_FILE = str(_DATA / "substitutions.txt")
 
 AUDIO_EXTENSIONS = {".m4a", ".mp3", ".wav", ".ogg", ".flac", ".webm", ".opus"}
 

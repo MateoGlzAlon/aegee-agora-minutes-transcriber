@@ -5,44 +5,46 @@
 
 
 A fully local, four-stage audio transcription pipeline for AEGEE Agora meeting recordings.  
-No external APIs are required — everything runs inside Docker.
+No external APIs or Docker required — everything runs directly on your machine.
 
 ---
 
 ## Prerequisites
 
-Before running the pipeline, you only need to have the following installed:
-
-* Docker (with Docker Compose)
-* Python 3 — needed on the **host** to run `make` targets (`python3` on Linux/macOS, `python` on Windows). If the command differs on your system, override it: `make up PYTHON=python`
+* **Python 3.10** — installed automatically by `make setup` via [pyenv](https://github.com/pyenv/pyenv) if not already present
+* **ffmpeg** — must be installed separately:
+  * Ubuntu/Debian: `sudo apt install ffmpeg`
+  * macOS: `brew install ffmpeg`
 
 ---
 
 ## Quick Start
 
 ```bash
-# 1. Place your audio file(s) in  data/03_audio/
+# 1. Install Python 3.10 + dependencies (only needed once)
+make setup
+
+# 2. Place your audio file(s) in  data/03_audio/
 #    or your video file(s)    in  data/01_video/
 
-# 2. Create a segments file (stage 2) for having different sections (optional but much better)
+# 3. (Optional) Create a segments file in data/02_segments/ for named sections
 
-# 3. Start the persistent daemon — builds the image on first run, then loads
-#    Whisper once and keeps it in memory for all subsequent stage calls.
+# 4. Start the persistent daemon — loads Whisper once and keeps it in memory
 make up
 
-# 4. Run stages (each dispatches to the already-loaded model — no reload)
+# 5. Run stages (each dispatches to the already-loaded model — no reload)
 make extract      # video → audio
 make segment      # split by time definitions
 make transcribe   # audio → raw transcript
 make enhance      # apply substitution rules
 
-# 5. Collect results from  data/05_output/
+# 6. Collect results from  data/05_output/
 
-# 6. Stop the daemon when you are done for the day
+# 7. Stop the daemon when done
 make down
 ```
 
-> **Without the daemon** every `make transcribe` (or `make all`) starts a fresh container and reloads the Whisper model (~1–2 min). With `make up` the model loads once; every subsequent stage call is dispatched instantly to the running container.
+> **Without the daemon** every `make transcribe` (or `make all`) reloads the Whisper model (~1–2 min). With `make up` the model loads once; every subsequent stage call is dispatched instantly to the already-warm process.
 
 The pipeline is **idempotent** — already-completed files are skipped on every run.  
 You can re-run any stage at any time without duplicating work.
@@ -53,37 +55,40 @@ You can re-run any stage at any time without duplicating work.
 
 | Command | Description |
 |---|---|
-| `make build` | Build the Docker image |
-| `make up` | Start the persistent daemon (builds image if needed, loads Whisper once) |
-| `make down` | Stop all containers (including the daemon) |
+| `make setup` | Install Python 3.10 (via pyenv if needed) + pip dependencies |
+| `make up` | Start the persistent daemon (loads Whisper once) |
+| `make down` | Stop the daemon |
 | `make extract` | Stage 1 — convert video files to audio (fast) |
 | `make segment` | Stage 2 — split audio by time-segment definitions (fast) |
 | `make transcribe` | Stage 3 — transcribe audio with Whisper (slow, CPU-heavy) |
 | `make enhance` | Stage 4 — apply substitution rules to raw transcripts (fast) |
 | `make all` | Run all four stages in order (skips already-done files) |
-| `make run` | Run the full pipeline in a single one-shot container |
+| `make run` | Run the full pipeline directly (no daemon required) |
 | `make status` | Show which files have been processed in each stage |
-| `make logs` | Follow all service logs |
+| `make logs` | Follow daemon logs (`daemon.log`) |
 | `make clean` | Remove final output files (`data/05_output/`) |
 | `make clean-status` | Remove status markers — forces all stages to re-run |
 | `make clean-raw` | Remove raw transcripts (`data/04_raw/`) |
-| `make reset` | Full cleanup: stop containers + remove all generated files |
-| `make purge` | Reset + remove Docker volumes and images |
-| `make everything` | Clean slate → build → run all stages |
+| `make reset` | Stop daemon + remove all generated files |
+| `make everything` | Clean slate → run all stages |
 
-Each stage target (`extract`, `segment`, `transcribe`, `enhance`, `all`) automatically uses the daemon when it is running and falls back to a one-shot container when it is not — so all targets work with or without `make up`.
+Each stage target (`extract`, `segment`, `transcribe`, `enhance`, `all`) automatically uses the daemon when it is running and falls back to running directly when it is not — so all targets work with or without `make up`.
 
 ---
 
 ## Configuration
 
-Edit `.env` before building:
+The Whisper model size can be changed by editing the `WHISPER_MODEL` environment variable before running (default: `medium`):
 
-```env
-# Whisper model for transcription (default: medium)
-# Options: tiny | base | small | medium | large-v3
-# Larger models are slower but more accurate.
-WHISPER_MODEL=medium
+```bash
+WHISPER_MODEL=small make transcribe
+```
+
+Or export it for the session:
+
+```bash
+export WHISPER_MODEL=small
+make up
 ```
 
 ---
@@ -92,14 +97,14 @@ WHISPER_MODEL=medium
 
 ```
 data/
-├── 03_audio/           # Input: audio files to transcribe
-│   └── <name>_02_segments/# Auto-created: split audio chunks (from Stage 2)
 ├── 01_video/              # Input: video files to extract audio from
 ├── 02_segments/           # Input: time-segment definition files
-├── substitutions.txt   # Input: substitution rules for Stage 4
+├── 03_audio/              # Input: audio files to transcribe
+│   └── <name>_segments/  # Auto-created: split audio chunks (from Stage 2)
+├── substitutions.txt      # Input: substitution rules for Stage 4
 ├── 04_raw/                # Output: raw Whisper transcripts
 ├── 05_output/             # Output: final transcripts after substitution
-└── status/             # Internal: completion markers for each stage
+└── status/                # Internal: completion markers for each stage
 ```
 
 ---
@@ -200,7 +205,7 @@ Entirety of the plan -> 1:19:50 - 1:23:00
 
 ### Output
 
-`data/03_audio/<name>_02_segments/` directory containing:
+`data/03_audio/<name>_segments/` directory containing:
 
 ```
 00_Activity_Plan_CD63.wav
@@ -231,7 +236,7 @@ Transcribes each audio file using [OpenAI Whisper](https://github.com/openai/whi
 ### Input
 
 Audio files in `data/03_audio/` (`.m4a`, `.mp3`, `.wav`, `.ogg`, `.flac`, `.webm`, `.opus`).  
-If a `<name>_02_segments/` directory exists (from Stage 2), each chunk is transcribed separately.
+If a `<name>_segments/` directory exists (from Stage 2), each chunk is transcribed separately.
 
 ### Output
 
@@ -260,18 +265,12 @@ For segmented files, sections are separated by headers and dividers:
 
 `data/status/<name>.transcribed` already exists.
 
-### Model caching
-
-The Whisper model is baked into the Docker image at build time (`make build`).  
-It is never downloaded again, even after a `docker system prune` or `make purge`.
-
-A named Docker volume (`whisper_cache`) is still mounted so the model can be shared if you override the image, but the image itself always carries the weights.
-
 ### Notes
 
 - Language is auto-detected by Whisper; no manual language selection is needed.
 - This is the slowest stage. A 1-hour audio file may take 30–90 minutes on CPU depending on the model size.
 - Use a smaller model (`tiny`, `base`, `small`) for faster results at lower accuracy.
+- The Whisper model is downloaded to `~/.cache/whisper/` on first use and reused on subsequent runs.
 
 ---
 
@@ -349,7 +348,7 @@ rm data/status/*.transcribed data/status/*.enhanced
 | `medium` | 1.5 GB | ~2× faster | **Default** — good balance |
 | `large-v3` | 3 GB | 1× (baseline) | Best accuracy |
 
-Change the model in `.env` and rebuild (`make build`) to apply.
+Set via the `WHISPER_MODEL` environment variable before running any stage.
 
 ---
 
@@ -364,11 +363,9 @@ Change the model in `.env` and rebuild (`make build`) to apply.
 │   ├── video.py          # Video to audio extraction
 │   ├── segmentation.py   # Audio splitting by time segments
 │   ├── diarization.py    # Speaker diarization stub (not yet active)
-│   ├── entrypoint.sh     # Docker entrypoint
-│   ├── requirements.txt
-│   └── Dockerfile
+│   └── requirements.txt
 ├── scripts/
-│   └── run.py            # Cross-platform helper called by the Makefile
+│   └── run.py            # Helper called by the Makefile
 ├── data/
 │   ├── 01_video/            # Input video files
 │   ├── 02_segments/         # Segment definition files
@@ -377,23 +374,22 @@ Change the model in `.env` and rebuild (`make build`) to apply.
 │   ├── 05_output/           # Final transcripts
 │   ├── substitutions.txt    # Substitution rules for Stage 4
 │   └── status/              # Stage completion markers
-├── docker-compose.yml
 ├── Makefile
-└── .env
+└── daemon.log             # Daemon output (created on first `make up`)
 ```
 
 ---
 
 ## Troubleshooting
 
+**`make setup` fails with a Python install error**  
+Ensure `curl` and standard build tools are available. On Ubuntu: `sudo apt install curl build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev`. Then re-run `make setup`.
+
 **Transcription is very slow**  
-Whisper runs on CPU by default inside Docker. Use a smaller model (`WHISPER_MODEL=small`) or enable GPU pass-through if your host has a CUDA-capable GPU.
+Whisper runs on CPU by default. Use a smaller model (`WHISPER_MODEL=small`) for faster results, or use `make up` so the model only loads once across all stage calls.
 
 **Transcription is slow on every run**  
-Use `make up` to start the persistent daemon. The Whisper model loads once at startup and stays in memory — subsequent `make transcribe` calls (or any stage) are dispatched to the already-warm model without reloading.
-
-**Whisper model is re-downloaded after `make purge`**  
-The model is baked into the Docker image during `make build`, so it is never re-downloaded from the internet. After a purge, `make build` (or `make up`) re-builds the image with the model already included.
+Use `make up` to start the persistent daemon. The Whisper model loads once at startup and stays in memory — subsequent stage calls are dispatched to the already-warm process without reloading.
 
 **Enhance produces no changes**  
 Check that `data/substitutions.txt` exists and contains valid `original>replacement` lines. Run `make status` to confirm the enhance stage ran.
