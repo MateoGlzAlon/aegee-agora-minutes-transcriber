@@ -23,7 +23,7 @@ def transcribe(audio_path: str) -> str:
     """
     print(f"  Transcribing: {audio_path}")
     print("  (each segment will print as it is decoded — this is slow on CPU)")
-    result = model.transcribe(audio_path, language=None, verbose=True)  # auto-detect language
+    result = model.transcribe(audio_path, language="en", verbose=True)  # auto-detect language
 
     detected_lang = result.get("language", "unknown")
     print(f"  Detected language: {detected_lang}")

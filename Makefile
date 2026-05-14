@@ -5,7 +5,7 @@ PYTHON         = $(VENV)/bin/python
 PIP            = $(VENV)/bin/pip
 
 .PHONY: help setup up down extract segment transcribe enhance all run status \
-        logs clean clean-status clean-raw reset everything
+        logs clean clean-status clean-raw reset everything lint_segments
 
 help: $(VENV)/.deps
 	$(PYTHON) scripts/run.py help
@@ -52,6 +52,9 @@ $(VENV)/.deps: app/requirements.txt | $(VENV)
 	$(PIP) install --upgrade pip -q
 	$(PIP) install -r app/requirements.txt
 	@touch $@
+
+lint_segments: $(VENV)/.deps
+	$(PYTHON) scripts/lint_segments.py $(FILES)
 
 setup: $(VENV)/.deps
 	@echo ""
