@@ -9,6 +9,7 @@ IG>AEGEE
 IHG>AEGEE
 Asia>AEGEE
 AJA>AEGEE
+AJ>AEGEE
 
 # ── Names ────────────────────────────────────────────────────────────────────
 Bilar>Bilal
@@ -20,6 +21,13 @@ Clarity Director>Comité Directeur
 HSRC>HRC
 DPDC>DPC
 ACRA>Agora
+chair team>Chair Team
+CV>CD
+Citi>CD
+city>CD
 
 # ── City / Antenna names ─────────────────────────────────────────────────────
 Rzeczaków>Krakow
+
+# ── Others ───────────────────────────────────────────────────────────────────
+
