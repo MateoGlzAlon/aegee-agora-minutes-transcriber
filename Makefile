@@ -108,6 +108,8 @@ wma_processing:
 
 # ── Cleanup ───────────────────────────────────────────────────────────────────
 
+clean-all: clean clean-status clean-raw
+
 clean: $(VENV)/.deps
 	$(PYTHON) scripts/run.py clean
 

@@ -24,6 +24,7 @@ CV>CD
 Citi>CD
 city>CD
 committee director>Comité Directeur
+comitre director>Comité Directeur
 HSRC>HRC
 DPDC>DPC
 ACRA>Agora
