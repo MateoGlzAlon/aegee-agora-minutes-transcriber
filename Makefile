@@ -87,8 +87,7 @@ transcribe: $(VENV)/.deps
 enhance: $(VENV)/.deps
 	$(PYTHON) scripts/run.py enhance
 
-all: $(VENV)/.deps
-	$(PYTHON) scripts/run.py all
+all: extract segment transcribe enhance
 
 # Run the full pipeline directly (no daemon)
 run: $(VENV)/.deps

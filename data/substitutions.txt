@@ -15,19 +15,23 @@ AJ>AEGEE
 Bilar>Bilal
 Cijan>Ceyhan
 Zosia>Zofia
+Izquierda>Izquierdo
+Shandar>Sandor
 
 # ── AEGEE bodies & terms ─────────────────────────────────────────────────────
 Clarity Director>Comité Directeur
-HSRC>HRC
-DPDC>DPC
-ACRA>Agora
-chair team>Chair Team
 CV>CD
 Citi>CD
 city>CD
+committee director>Comité Directeur
+HSRC>HRC
+DPDC>DPC
+ACRA>Agora
+Agoda>Agora
+chair team>Chair Team
 
 # ── City / Antenna names ─────────────────────────────────────────────────────
 Rzeczaków>Krakow
 
 # ── Others ───────────────────────────────────────────────────────────────────
-
+netcommis>netcommies
