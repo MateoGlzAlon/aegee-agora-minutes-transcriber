@@ -7,3 +7,9 @@ app/__pycache__/
 daemon.log
 
 .claude/*
+
+WMA_audio_processing/input/*
+!WMA_audio_processing/input/.gitkeep
+
+WMA_audio_processing/output/*
+!WMA_audio_processing/output/.gitkeep
