@@ -9,7 +9,33 @@ IG>AEGEE
 IHG>AEGEE
 Asia>AEGEE
 AJA>AEGEE
+Aja>AEGEE
 AJ>AEGEE
+Aija>AEGEE
+Aizhe>AEGEE
+
+# ── AEGEE bodies ─────────────────────────────────────────────────────────────
+Clarity Director>Comité Directeur
+committee director>Comité Directeur
+comitre director>Comité Directeur
+comité directeur>Comité Directeur
+CV>CD
+Citi>CD
+city>CD
+HSRC>HRC
+DPDC>DPC
+chair team>Chair Team
+J.C.>JC
+
+# ── AEGEE terms ──────────────────────────────────────────────────────────────
+CLA>CIA
+titanium>prytanium
+Britannium>prytanium
+ACRA>Agora
+Agoda>Agora
+
+# ── City / Antenna names ─────────────────────────────────────────────────────
+Rzeczaków>Krakow
 
 # ── Names ────────────────────────────────────────────────────────────────────
 Bilar>Bilal
@@ -17,22 +43,9 @@ Cijan>Ceyhan
 Zosia>Zofia
 Izquierda>Izquierdo
 Shandar>Sandor
-
-# ── AEGEE bodies & terms ─────────────────────────────────────────────────────
-Clarity Director>Comité Directeur
-CV>CD
-Citi>CD
-city>CD
-committee director>Comité Directeur
-comitre director>Comité Directeur
-HSRC>HRC
-DPDC>DPC
-ACRA>Agora
-Agoda>Agora
-chair team>Chair Team
-
-# ── City / Antenna names ─────────────────────────────────────────────────────
-Rzeczaków>Krakow
+Urquizo>Urquizu
+Rebecca>Rebeca
+Schimba>Zieba
 
 # ── Others ───────────────────────────────────────────────────────────────────
 netcommis>netcommies
