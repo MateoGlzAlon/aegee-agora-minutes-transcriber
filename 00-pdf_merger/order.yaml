@@ -6,26 +6,26 @@ pdfs:
     notes: note1
     process: false
     pdfs_merge:
-      - "../input/2026.05.07 Morning Plenary, Presentation of ASRF - Treasurer AEGEE-Europe.pdf"
-      - "../input/2026.05.07 Morning Plenary, Presentation of FATF - Treasurer AEGEE-Europe.pdf"
-      - "../input/2026.05.07 Morning Plenary, Secretariat Update - Secretary AEGEE-Europe.pdf"
-      - "../input/Working with Working Groups.pptx - Tomke Eiting.pdf"
-      - "../input/2026.05.07 Morning Plenary Higlights of Stratgic Plan.pptx - President AEGEE-Europe.pdf"
-      - "../input/2026.05.07 Morning Plenary, EPM Topic Proposals - Secretary AEGEE-Europe.pdf"
-      - "../input/2026.05.07 Morning Plenary - YOUTHreach presentation  - President AEGEE-Europe.pdf"
-      - "../input/2026.05.07. Morning Plenary, Presentation of Erasmus Bubble - Projects AEGEE-Europe.pdf"
+      - "input/2026.05.07 Morning Plenary, Presentation of ASRF - Treasurer AEGEE-Europe.pdf"
+      - "input/2026.05.07 Morning Plenary, Presentation of FATF - Treasurer AEGEE-Europe.pdf"
+      - "input/2026.05.07 Morning Plenary, Secretariat Update - Secretary AEGEE-Europe.pdf"
+      - "input/Working with Working Groups.pptx - Tomke Eiting.pdf"
+      - "input/2026.05.07 Morning Plenary Higlights of Stratgic Plan.pptx - President AEGEE-Europe.pdf"
+      - "input/2026.05.07 Morning Plenary, EPM Topic Proposals - Secretary AEGEE-Europe.pdf"
+      - "input/2026.05.07 Morning Plenary - YOUTHreach presentation  - President AEGEE-Europe.pdf"
+      - "input/2026.05.07. Morning Plenary, Presentation of Erasmus Bubble - Projects AEGEE-Europe.pdf"
 
   pdf-thursday-evening:
     name: 7-thursday-evening-plenary
     notes: note1
     process: false
     pdfs_merge:
-      - "../input/2026.05.07- Evening plenaty, candidature presentation - Rebeca Urquizu.pdf"
-      - "../input/2026.05.07 Morning Plenary, Secretariat Update - Secretary AEGEE-Europe.pdf"
-      - "../input/2026.05.08 Morning Plenary, Presentation of the candidates for Member of the Comité Directeur - David Mediavilla.pdf"
-      - "../input/2026.05.08 Morning Plenary, Presentation of the candidates for Member of the Comité Directeur.pptx - Yasemin Defne Şirin.pdf"
-      - "../input/2026.05.08 Morning Plenary, Presentation of CD candidate - Zofia Wójcicka.pdf"
-      - "../input/Announcement of HUTF fundraiser.pptx - Leon Kogel.pdf"      
+      - "input/2026.05.07- Evening plenaty, candidature presentation - Rebeca Urquizu.pdf"
+      - "input/2026.05.07 Morning Plenary, Secretariat Update - Secretary AEGEE-Europe.pdf"
+      - "input/2026.05.08 Morning Plenary, Presentation of the candidates for Member of the Comité Directeur - David Mediavilla.pdf"
+      - "input/2026.05.08 Morning Plenary, Presentation of the candidates for Member of the Comité Directeur.pptx - Yasemin Defne Şirin.pdf"
+      - "input/2026.05.08 Morning Plenary, Presentation of CD candidate - Zofia Wójcicka.pdf"
+      - "input/Announcement of HUTF fundraiser.pptx - Leon Kogel.pdf"      
 
 
 
