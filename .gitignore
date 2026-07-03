@@ -9,8 +9,8 @@ daemon.log
 
 .claude/*
 
-WMA_audio_processing/input/*
-!WMA_audio_processing/input/.gitkeep
+01-WMA_audio_processing/input/*
+!01-WMA_audio_processing/input/.gitkeep
 
-WMA_audio_processing/output/*
-!WMA_audio_processing/output/.gitkeep
+01-WMA_audio_processing/output/*
+!01-WMA_audio_processing/output/.gitkeep
