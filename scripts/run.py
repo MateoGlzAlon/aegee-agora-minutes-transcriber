@@ -20,7 +20,7 @@ CMD_IN   = "/tmp/cmd_in"
 CMD_DONE = "/tmp/cmd_done"
 READY    = "/tmp/daemon_ready"
 
-STAGES = {"extract", "segment", "transcribe", "enhance", "all"}
+STAGES = {"extract", "segment", "transcribe", "transcribe-full", "transcribe-segments", "enhance", "all"}
 
 
 # ── Daemon helpers ────────────────────────────────────────────────────────────
@@ -170,7 +170,9 @@ def cmd_help():
     make up           Start the persistent daemon
     make extract      Convert video files to audio
     make segment      Split audio by segment definitions
-    make transcribe   Transcribe audio with Whisper
+    make transcribe           Transcribe audio with Whisper (full file + segments)
+    make transcribe-full      Transcribe full audio only → {stem}_FULL.txt
+    make transcribe-segments  Transcribe segments only   → {stem}_SEGMENTS.txt
     make enhance      Apply substitution rules to raw transcripts
     make all          Run all stages in order
     make down         Stop the daemon

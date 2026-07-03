@@ -21,11 +21,13 @@ print("[daemon] Whisper model loaded.", flush=True)
 import main as pipeline
 
 STAGES = {
-    "extract":    pipeline.run_extract,
-    "segment":    pipeline.run_segment,
-    "transcribe": pipeline.run_transcribe,
-    "enhance":    pipeline.run_enhance,
-    "all":        pipeline.run_all,
+    "extract":             pipeline.run_extract,
+    "segment":             pipeline.run_segment,
+    "transcribe":          pipeline.run_transcribe,
+    "transcribe-full":     pipeline.run_transcribe_full,
+    "transcribe-segments": pipeline.run_transcribe_segments,
+    "enhance":             pipeline.run_enhance,
+    "all":                 pipeline.run_all,
 }
 
 # Remove stale signal files from a previous run

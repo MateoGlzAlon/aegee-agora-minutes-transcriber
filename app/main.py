@@ -29,6 +29,13 @@ def fmt_duration(seconds: float) -> str:
     return f"{m}m {s}s"
 
 
+def format_hms(seconds: float) -> str:
+    h = int(seconds // 3600)
+    m = int((seconds % 3600) // 60)
+    s = int(seconds % 60)
+    return f"{h:02d}:{m:02d}:{s:02d}"
+
+
 def is_done(stem: str, stage: str) -> bool:
     return os.path.exists(os.path.join(STATUS_DIR, f"{stem}.{stage}"))
 
@@ -115,7 +122,7 @@ def run_segment() -> None:
             print(f"  Warning: {segments_path} has no valid entries — skipping.")
             continue
 
-        chunks_dir = os.path.join(AUDIO_DIR, stem + "_segments")
+        chunks_dir = os.path.join(AUDIO_DIR, stem + "_SEGMENTS")
         print(f"  Splitting {stem} into {len(segments)} chunk(s)…", end=" ", flush=True)
         t0 = time.time()
         chunk_files = split_audio(audio_path, segments, chunks_dir)
@@ -133,12 +140,17 @@ def run_segment() -> None:
 
 # ─── Stage: transcribe ───────────────────────────────────────────────────────
 
-def run_transcribe() -> None:
-    # Lazy import — loads Whisper model here (slow, not needed for other stages)
+def run_transcribe(mode: str = "both") -> None:
+    """
+    mode: "both"     — full file + segmented (default)
+          "full"     — full file only  → {stem}_FULL.txt
+          "segments" — segments only   → {stem}_SEGMENTS.txt
+    """
     from transcription import transcribe
 
+    mode_label = {"both": "full + segments", "full": "full only", "segments": "segments only"}[mode]
     print("=" * 50)
-    print("  Stage: Transcribe (audio → raw transcript)")
+    print(f"  Stage: Transcribe ({mode_label})")
     print("=" * 50)
     os.makedirs(RAW_DIR, exist_ok=True)
 
@@ -149,7 +161,13 @@ def run_transcribe() -> None:
 
     for audio_path in audio_files:
         stem = os.path.splitext(os.path.basename(audio_path))[0]
-        if is_done(stem, "transcribed"):
+
+        full_done     = is_done(stem, "transcribed-full")
+        segments_done = is_done(stem, "transcribed")
+        want_full     = mode in ("both", "full")
+        want_segments = mode in ("both", "segments")
+
+        if (not want_full or full_done) and (not want_segments or segments_done):
             print(f"  SKIP  {stem}  (already transcribed)")
             continue
 
@@ -157,32 +175,54 @@ def run_transcribe() -> None:
         print(f"\n  {stem}  ({file_size_mb:.1f} MB)")
         print("  " + "-" * 38)
 
-        chunks_dir = os.path.join(AUDIO_DIR, stem + "_segments")
-        if os.path.isdir(chunks_dir):
-            raw_text = _transcribe_segmented(stem, chunks_dir, transcribe)
-        else:
-            print("  Transcribing whole file…")
+        chunks_dir = os.path.join(AUDIO_DIR, stem + "_SEGMENTS")
+
+        if want_full and not full_done:
+            print("  Transcribing full file…")
             t0 = time.time()
-            raw_text = transcribe(audio_path)
+            full_text = transcribe(audio_path)
             elapsed = fmt_duration(time.time() - t0)
-            print(f"  Done in {elapsed} — {len(raw_text):,} chars")
+            print(f"  Done in {elapsed} — {len(full_text):,} chars")
+            full_path = os.path.join(RAW_DIR, stem + "_FULL.txt")
+            with open(full_path, "w", encoding="utf-8") as f:
+                f.write(full_text)
+            print(f"  Saved full transcript → {full_path}")
+            mark_done(stem, "transcribed-full", f"raw: {full_path}\nchars: {len(full_text)}")
 
-        raw_path = os.path.join(RAW_DIR, stem + ".txt")
-        with open(raw_path, "w", encoding="utf-8") as f:
-            f.write(raw_text)
-
-        mark_done(stem, "transcribed", f"raw: {raw_path}\nchars: {len(raw_text)}")
+        if want_segments and not segments_done:
+            if os.path.isdir(chunks_dir):
+                segments_path = os.path.join(SEGMENTS_DIR, stem + ".txt")
+                segments_meta = parse_segments_file(segments_path) if os.path.isfile(segments_path) else []
+                raw_text = _transcribe_segmented(stem, chunks_dir, transcribe, segments_meta)
+            else:
+                print("  Transcribing whole file…")
+                t0 = time.time()
+                raw_text = transcribe(audio_path)
+                elapsed = fmt_duration(time.time() - t0)
+                print(f"  Done in {elapsed} — {len(raw_text):,} chars")
+            raw_path = os.path.join(RAW_DIR, stem + "_SEGMENTS.txt")
+            with open(raw_path, "w", encoding="utf-8") as f:
+                f.write(raw_text)
+            mark_done(stem, "transcribed", f"raw: {raw_path}\nchars: {len(raw_text)}")
 
     print("\nTranscription complete.\n")
 
 
-def _transcribe_segmented(stem: str, chunks_dir: str, transcribe_fn) -> str:
+def run_transcribe_full()     -> None: run_transcribe(mode="full")
+def run_transcribe_segments() -> None: run_transcribe(mode="segments")
+
+
+def _transcribe_segmented(stem: str, chunks_dir: str, transcribe_fn, segments_meta: list[dict] = []) -> str:
     chunk_files = sorted(
         os.path.join(chunks_dir, f)
         for f in os.listdir(chunks_dir)
         if not f.startswith(".") and f.endswith(".wav")
     )
     print(f"  Found {len(chunk_files)} segment chunk(s) in {chunks_dir}")
+
+    # Build a lookup from 0-based index to timing so we can annotate headers
+    timing_by_index = {i: seg for i, seg in enumerate(segments_meta)}
+
     parts = []
     for i, chunk_path in enumerate(chunk_files, 1):
         label = os.path.splitext(os.path.basename(chunk_path))[0]
@@ -191,7 +231,14 @@ def _transcribe_segmented(stem: str, chunks_dir: str, transcribe_fn) -> str:
         raw = transcribe_fn(chunk_path)
         elapsed = fmt_duration(time.time() - t0)
         print(f"    Done in {elapsed} — {len(raw):,} chars")
-        parts.append(f"## {label}\n\n{raw}")
+
+        seg = timing_by_index.get(i - 1)
+        if seg:
+            time_range = f"{format_hms(seg['start'])} - {format_hms(seg['end'])}"
+            header = f"## {label}\n*{time_range}*"
+        else:
+            header = f"## {label}"
+        parts.append(f"{header}\n\n{raw}")
     return "\n\n---\n\n".join(parts)
 
 
@@ -315,10 +362,12 @@ def run_all() -> None:
 # ─── Entry point ─────────────────────────────────────────────────────────────
 
 STAGES = {
-    "extract": run_extract,
-    "segment": run_segment,
-    "transcribe": run_transcribe,
-    "enhance": run_enhance,
+    "extract":             run_extract,
+    "segment":             run_segment,
+    "transcribe":          run_transcribe,
+    "transcribe-full":     run_transcribe_full,
+    "transcribe-segments": run_transcribe_segments,
+    "enhance":             run_enhance,
 }
 
 

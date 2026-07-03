@@ -33,6 +33,7 @@ titanium>prytanium
 Britannium>prytanium
 ACRA>Agora
 Agoda>Agora
+Agra>Agora
 
 # ── City / Antenna names ─────────────────────────────────────────────────────
 Rzeczaków>Krakow

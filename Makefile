@@ -4,8 +4,8 @@ VENV           = .venv
 PYTHON         = $(VENV)/bin/python
 PIP            = $(VENV)/bin/pip
 
-.PHONY: help setup up down extract segment transcribe enhance all run status \
-        logs clean clean-status clean-raw reset everything lint_segments
+.PHONY: help setup up down extract segment transcribe transcribe-full transcribe-segments \
+        enhance all run status logs clean clean-status clean-raw reset everything lint_segments
 
 help: $(VENV)/.deps
 	$(PYTHON) scripts/run.py help
@@ -83,6 +83,12 @@ segment: $(VENV)/.deps
 
 transcribe: $(VENV)/.deps
 	$(PYTHON) scripts/run.py transcribe
+
+transcribe-full: $(VENV)/.deps
+	$(PYTHON) scripts/run.py transcribe-full
+
+transcribe-segments: $(VENV)/.deps
+	$(PYTHON) scripts/run.py transcribe-segments
 
 enhance: $(VENV)/.deps
 	$(PYTHON) scripts/run.py enhance
