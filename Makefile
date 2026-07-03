@@ -110,7 +110,7 @@ logs:
 	@tail -f daemon.log 2>/dev/null || echo "No daemon log found. Start the daemon with: make up"
 
 wma_processing:
-	cd WMA_audio_processing && ./process_audio.sh
+	cd 01-WMA_audio_processing && ./process_audio.sh
 
 # ── Cleanup ───────────────────────────────────────────────────────────────────
 

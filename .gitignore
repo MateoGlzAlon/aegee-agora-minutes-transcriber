@@ -1,6 +1,7 @@
 # Generated data directories are kept in git via their own .gitignore files
-
+.vscode/
 .venv/
+.claude/
 
 app/__pycache__/
 
