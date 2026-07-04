@@ -176,34 +176,45 @@ def run_transcribe(mode: str = "both") -> None:
         print("  " + "-" * 38)
 
         chunks_dir = os.path.join(AUDIO_DIR, stem + "_SEGMENTS")
+        has_segments = os.path.isdir(chunks_dir)
 
-        if want_full and not full_done:
-            print("  Transcribing full file…")
-            t0 = time.time()
-            full_text = transcribe(audio_path)
-            elapsed = fmt_duration(time.time() - t0)
-            print(f"  Done in {elapsed} — {len(full_text):,} chars")
-            full_path = os.path.join(RAW_DIR, stem + "_FULL.txt")
-            with open(full_path, "w", encoding="utf-8") as f:
-                f.write(full_text)
-            print(f"  Saved full transcript → {full_path}")
-            mark_done(stem, "transcribed-full", f"raw: {full_path}\nchars: {len(full_text)}")
+        if not has_segments:
+            # No segments directory: one transcription covers both modes → _FULL.txt only
+            if (want_full and not full_done) or (want_segments and not segments_done):
+                print("  Transcribing whole file…")
+                t0 = time.time()
+                full_text = transcribe(audio_path)
+                elapsed = fmt_duration(time.time() - t0)
+                print(f"  Done in {elapsed} — {len(full_text):,} chars")
+                full_path = os.path.join(RAW_DIR, stem + "_FULL.txt")
+                with open(full_path, "w", encoding="utf-8") as f:
+                    f.write(full_text)
+                print(f"  Saved transcript → {full_path}")
+                if want_full and not full_done:
+                    mark_done(stem, "transcribed-full", f"raw: {full_path}\nchars: {len(full_text)}")
+                if want_segments and not segments_done:
+                    mark_done(stem, "transcribed", f"raw: {full_path}\nchars: {len(full_text)}")
+        else:
+            if want_full and not full_done:
+                print("  Transcribing full file…")
+                t0 = time.time()
+                full_text = transcribe(audio_path)
+                elapsed = fmt_duration(time.time() - t0)
+                print(f"  Done in {elapsed} — {len(full_text):,} chars")
+                full_path = os.path.join(RAW_DIR, stem + "_FULL.txt")
+                with open(full_path, "w", encoding="utf-8") as f:
+                    f.write(full_text)
+                print(f"  Saved full transcript → {full_path}")
+                mark_done(stem, "transcribed-full", f"raw: {full_path}\nchars: {len(full_text)}")
 
-        if want_segments and not segments_done:
-            if os.path.isdir(chunks_dir):
+            if want_segments and not segments_done:
                 segments_path = os.path.join(SEGMENTS_DIR, stem + ".txt")
                 segments_meta = parse_segments_file(segments_path) if os.path.isfile(segments_path) else []
                 raw_text = _transcribe_segmented(stem, chunks_dir, transcribe, segments_meta)
-            else:
-                print("  Transcribing whole file…")
-                t0 = time.time()
-                raw_text = transcribe(audio_path)
-                elapsed = fmt_duration(time.time() - t0)
-                print(f"  Done in {elapsed} — {len(raw_text):,} chars")
-            raw_path = os.path.join(RAW_DIR, stem + "_SEGMENTS.txt")
-            with open(raw_path, "w", encoding="utf-8") as f:
-                f.write(raw_text)
-            mark_done(stem, "transcribed", f"raw: {raw_path}\nchars: {len(raw_text)}")
+                raw_path = os.path.join(RAW_DIR, stem + "_SEGMENTS.txt")
+                with open(raw_path, "w", encoding="utf-8") as f:
+                    f.write(raw_text)
+                mark_done(stem, "transcribed", f"raw: {raw_path}\nchars: {len(raw_text)}")
 
     print("\nTranscription complete.\n")
 

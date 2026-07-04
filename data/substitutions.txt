@@ -26,6 +26,7 @@ HSRC>HRC
 DPDC>DPC
 chair team>Chair Team
 J.C.>JC
+EPOC>EQAC
 
 # ── AEGEE terms ──────────────────────────────────────────────────────────────
 CLA>CIA
@@ -50,3 +51,4 @@ Schimba>Zieba
 
 # ── Others ───────────────────────────────────────────────────────────────────
 netcommis>netcommies
+ESEEM>ESTIEM

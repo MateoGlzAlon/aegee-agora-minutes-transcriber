@@ -33,10 +33,10 @@ make setup
 make up
 
 # 5. Run stages (each dispatches to the already-loaded model — no reload)
-make extract      # video → audio
-make segment      # split by time definitions
-make transcribe   # audio → raw transcript
-make enhance      # apply substitution rules
+make extract             # video → audio
+make segment             # split by time definitions
+make transcribe          # audio → raw transcript (full file + segments)
+make enhance             # apply substitution rules
 
 # 6. Collect results from  data/05_output/
 
@@ -60,7 +60,9 @@ You can re-run any stage at any time without duplicating work.
 | `make down` | Stop the daemon |
 | `make extract` | Stage 1 — convert video files to audio (fast) |
 | `make segment` | Stage 2 — split audio by time-segment definitions (fast) |
-| `make transcribe` | Stage 3 — transcribe audio with Whisper (slow, CPU-heavy) |
+| `make transcribe` | Stage 3 — transcribe full file **and** segments (slow, CPU-heavy) |
+| `make transcribe-full` | Stage 3 — transcribe full audio only → `{stem}_FULL.txt` |
+| `make transcribe-segments` | Stage 3 — transcribe segments only → `{stem}_SEGMENTS.txt` |
 | `make enhance` | Stage 4 — apply substitution rules to raw transcripts (fast) |
 | `make all` | Run all four stages in order (skips already-done files) |
 | `make run` | Run the full pipeline directly (no daemon required) |
@@ -97,14 +99,16 @@ make up
 
 ```
 data/
-├── 01_video/              # Input: video files to extract audio from
-├── 02_segments/           # Input: time-segment definition files
-├── 03_audio/              # Input: audio files to transcribe
-│   └── <name>_segments/  # Auto-created: split audio chunks (from Stage 2)
-├── substitutions.txt      # Input: substitution rules for Stage 4
-├── 04_raw/                # Output: raw Whisper transcripts
-├── 05_output/             # Output: final transcripts after substitution
-└── status/                # Internal: completion markers for each stage
+├── 01_video/               # Input: video files to extract audio from
+├── 02_segments/            # Input: time-segment definition files
+├── 03_audio/               # Input: audio files to transcribe
+│   └── <name>_SEGMENTS/   # Auto-created: split audio chunks (from Stage 2)
+├── substitutions.txt       # Input: substitution rules for Stage 4
+├── 04_raw/                 # Output: raw Whisper transcripts
+│   ├── <name>_FULL.txt    # Full audio transcript (when segments exist)
+│   └── <name>_SEGMENTS.txt# Per-segment transcript with time annotations
+├── 05_output/              # Output: final transcripts after substitution
+└── status/                 # Internal: completion markers for each stage
 ```
 
 ---
@@ -205,7 +209,7 @@ Entirety of the plan -> 1:19:50 - 1:23:00
 
 ### Output
 
-`data/03_audio/<name>_segments/` directory containing:
+`data/03_audio/<name>_SEGMENTS/` directory containing:
 
 ```
 00_Activity_Plan_CD63.wav
@@ -233,37 +237,53 @@ Chunks are zero-padded and ordered as defined in the segment file.
 
 Transcribes each audio file using [OpenAI Whisper](https://github.com/openai/whisper).
 
+Three make targets control what gets transcribed when a `<name>_SEGMENTS/` directory exists:
+
+| Target | Produces | Status marker |
+|---|---|---|
+| `make transcribe` | `<name>_FULL.txt` + `<name>_SEGMENTS.txt` | `transcribed-full` + `transcribed` |
+| `make transcribe-full` | `<name>_FULL.txt` only | `transcribed-full` |
+| `make transcribe-segments` | `<name>_SEGMENTS.txt` only | `transcribed` |
+
+Each target is independently idempotent — running `make transcribe-segments` and then `make transcribe` will only do the full-file transcription (segments are already marked done).
+
+For audio files without a `_SEGMENTS/` directory (no segment definition file was used), all three targets produce only `<name>_FULL.txt` with a single transcription — no `_SEGMENTS.txt` is created and no double transcription occurs.
+
 ### Input
 
-Audio files in `data/03_audio/` (`.m4a`, `.mp3`, `.wav`, `.ogg`, `.flac`, `.webm`, `.opus`).  
-If a `<name>_segments/` directory exists (from Stage 2), each chunk is transcribed separately.
+Audio files in `data/03_audio/` (`.m4a`, `.mp3`, `.wav`, `.ogg`, `.flac`, `.webm`, `.opus`).
 
 ### Output
 
-`data/04_raw/<name>.txt` — timestamped transcript, one line per Whisper segment:
+**`data/04_raw/<name>_FULL.txt`** — full audio transcript, one line per Whisper segment:
 
 ```
 [00:00:05 --> 00:00:12] Hello everyone, welcome
 [00:00:13 --> 00:00:22] to the Agora meeting today
 ```
 
-For segmented files, sections are separated by headers and dividers:
+**`data/04_raw/<name>_SEGMENTS.txt`** — per-segment transcript with a header showing the time range of each segment in the original audio:
 
 ```
 ## 00_Activity_Plan_CD63
+*00:18:00 - 00:19:45*
 
 [00:00:01 --> 00:00:08] ...
 
 ---
 
 ## 01_Alumni
+*00:21:15 - 00:29:55*
 
 [00:00:01 --> 00:00:05] ...
 ```
 
+Note: timestamps inside `[...]` are relative to the start of each chunk; the `*HH:MM:SS - HH:MM:SS*` line shows where that chunk falls in the original full recording.
+
 ### Skipped when
 
-`data/status/<name>.transcribed` already exists.
+- Full transcription: `data/status/<name>.transcribed-full` already exists.
+- Segment transcription: `data/status/<name>.transcribed` already exists.
 
 ### Notes
 
@@ -280,12 +300,12 @@ Applies text substitution rules to correct systematic Whisper errors (names, acr
 
 ### Input
 
-- Raw transcripts from `data/04_raw/<name>.txt`
+- Raw transcripts from `data/04_raw/` — picks up all `.txt` files, including `<name>_FULL.txt` and `<name>_SEGMENTS.txt`
 - Substitution rules from `data/substitutions.txt`
 
 ### Output
 
-`data/05_output/<name>.txt` — corrected transcript with a title header:
+`data/05_output/<name>.txt` (or `<name>_FULL.txt` / `<name>_SEGMENTS.txt`) — corrected transcript with a title header:
 
 ```
 # Transcription: <name>
@@ -315,7 +335,8 @@ Each stage writes a marker file to `data/status/` when it completes:
 |---|---|
 | `data/status/<name>.extracted` | audio has been extracted from video |
 | `data/status/<name>.segmented` | audio has been split into chunks |
-| `data/status/<name>.transcribed` | audio has been transcribed |
+| `data/status/<name>.transcribed-full` | full audio has been transcribed → `<name>_FULL.txt` |
+| `data/status/<name>.transcribed` | segments have been transcribed → `<name>_SEGMENTS.txt` |
 | `data/status/<name>.enhanced` | transcript has been enhanced |
 
 Inspect a marker for details:
