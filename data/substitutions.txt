@@ -13,6 +13,9 @@ Aja>AEGEE
 AJ>AEGEE
 Aija>AEGEE
 Aizhe>AEGEE
+Ajay>AEGEE
+Alka>AEGEE
+AG>AEGEE
 
 # ── AEGEE bodies ─────────────────────────────────────────────────────────────
 Clarity Director>Comité Directeur
@@ -35,6 +38,7 @@ Britannium>prytanium
 ACRA>Agora
 Agoda>Agora
 Agra>Agora
+netcommis>netcommies
 
 # ── City / Antenna names ─────────────────────────────────────────────────────
 Rzeczaków>Krakow
@@ -50,5 +54,4 @@ Rebecca>Rebeca
 Schimba>Zieba
 
 # ── Others ───────────────────────────────────────────────────────────────────
-netcommis>netcommies
 ESEEM>ESTIEM
