@@ -251,7 +251,7 @@ For audio files without a `_SEGMENTS/` directory (no segment definition file was
 
 ### Input
 
-Audio files in `data/03_audio/` (`.m4a`, `.mp3`, `.wav`, `.ogg`, `.flac`, `.webm`, `.opus`).
+Audio files in `data/03_audio/` (`.m4a`, `.mp3`, `.wav`, `.ogg`, `.flac`, `.webm`, `.opus`, `.wma`).
 
 ### Output
 

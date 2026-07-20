@@ -19,7 +19,7 @@ OUTPUT_DIR         = str(_DATA / "05_output")
 STATUS_DIR         = str(_DATA / "status")
 SUBSTITUTIONS_FILE = str(_DATA / "substitutions.txt")
 
-AUDIO_EXTENSIONS = {".m4a", ".mp3", ".wav", ".ogg", ".flac", ".webm", ".opus"}
+AUDIO_EXTENSIONS = {".m4a", ".mp3", ".wav", ".ogg", ".flac", ".webm", ".opus", ".wma"}
 
 
 def fmt_duration(seconds: float) -> str:
