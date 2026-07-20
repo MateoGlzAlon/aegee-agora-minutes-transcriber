@@ -132,6 +132,19 @@ def cmd_status():
     print()
 
 
+def _clear_dir(d: Path):
+    """Remove everything in *d* except .gitignore, keeping the directory itself."""
+    if not d.is_dir():
+        return
+    for entry in d.iterdir():
+        if entry.name == ".gitignore":
+            continue
+        if entry.is_dir():
+            shutil.rmtree(entry)
+        else:
+            entry.unlink()
+
+
 def cmd_clean():
     files = list((ROOT / "data" / "05_output").glob("*.txt"))
     for f in files:
@@ -140,17 +153,13 @@ def cmd_clean():
 
 
 def cmd_clean_status():
-    d = ROOT / "data" / "status"
-    if d.is_dir():
-        shutil.rmtree(d)
-        print("Removed data/status/")
+    _clear_dir(ROOT / "data" / "status")
+    print("Removed data/status/ contents")
 
 
 def cmd_clean_raw():
-    d = ROOT / "data" / "04_raw"
-    if d.is_dir():
-        shutil.rmtree(d)
-        print("Removed data/04_raw/")
+    _clear_dir(ROOT / "data" / "04_raw")
+    print("Removed data/04_raw/ contents")
 
 
 def cmd_help():

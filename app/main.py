@@ -88,10 +88,10 @@ def run_extract() -> None:
         video_path = os.path.join(VIDEO_DIR, vf)
         print(f"  Extracting {vf}…", end=" ", flush=True)
         t0 = time.time()
-        wav_path = extract_audio(video_path, AUDIO_DIR)
+        audio_path = extract_audio(video_path, AUDIO_DIR)
         elapsed = fmt_duration(time.time() - t0)
-        print(f"done in {elapsed}  →  {wav_path}")
-        mark_done(stem, "extracted", f"source: {vf}\noutput: {wav_path}\nduration: {elapsed}")
+        print(f"done in {elapsed}  →  {audio_path}")
+        mark_done(stem, "extracted", f"source: {vf}\noutput: {audio_path}\nduration: {elapsed}")
 
     print("\nExtraction complete.\n")
 
@@ -227,7 +227,7 @@ def _transcribe_segmented(stem: str, chunks_dir: str, transcribe_fn, segments_me
     chunk_files = sorted(
         os.path.join(chunks_dir, f)
         for f in os.listdir(chunks_dir)
-        if not f.startswith(".") and f.endswith(".wav")
+        if not f.startswith(".") and f.endswith(".mp3")
     )
     print(f"  Found {len(chunk_files)} segment chunk(s) in {chunks_dir}")
 

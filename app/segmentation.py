@@ -54,24 +54,24 @@ def parse_segments_file(path: str) -> list[dict]:
 
 def split_audio(audio_path: str, segments: list[dict], output_dir: str) -> list[dict]:
     """
-    Cut *audio_path* into one WAV file per segment using ffmpeg.
+    Cut *audio_path* into one MP3 file per segment using ffmpeg.
 
     Returns a list of dicts: {label, path} in the same order as *segments*.
     Output files are written to *output_dir* and named
-    ``00_Label.wav``, ``01_Label.wav``, …
+    ``00_Label.mp3``, ``01_Label.mp3``, …
     """
     os.makedirs(output_dir, exist_ok=True)
     results: list[dict] = []
 
     for i, seg in enumerate(segments):
         safe_label = re.sub(r"[^\w\s-]", "", seg["label"]).strip().replace(" ", "_")
-        out_path = os.path.join(output_dir, f"{i:02d}_{safe_label}.wav")
+        out_path = os.path.join(output_dir, f"{i:02d}_{safe_label}.mp3")
         duration = seg["end"] - seg["start"]
 
         (
             ffmpeg
             .input(audio_path, ss=seg["start"], t=duration)
-            .output(out_path, acodec="pcm_s16le", ar=16000, ac=1)
+            .output(out_path, acodec="libmp3lame", ar=16000, ac=1, audio_bitrate="192k")
             .overwrite_output()
             .run(quiet=True)
         )

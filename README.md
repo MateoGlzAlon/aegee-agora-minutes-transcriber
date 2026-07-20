@@ -148,7 +148,7 @@ If `data/substitutions.txt` does not exist, the Enhance stage still runs — it 
 
 ## Stage 1 — Extract (video → audio)
 
-Converts video files to mono 16 kHz WAV audio using ffmpeg.
+Converts video files to mono 16 kHz MP3 audio using ffmpeg.
 
 ### Input
 
@@ -157,7 +157,7 @@ Supported formats: `.mp4`, `.mkv`, `.avi`, `.mov`, `.m4v`, `.ts`, `.wmv`
 
 ### Output
 
-`data/03_audio/<name>.wav` — one WAV file per video, same stem as the source.
+`data/03_audio/<name>.mp3` — one MP3 file per video, same stem as the source.
 
 ### Skipped when
 
@@ -212,9 +212,9 @@ Entirety of the plan -> 1:19:50 - 1:23:00
 `data/03_audio/<name>_SEGMENTS/` directory containing:
 
 ```
-00_Activity_Plan_CD63.wav
-01_Alumni.wav
-02_Communications.wav
+00_Activity_Plan_CD63.mp3
+01_Alumni.mp3
+02_Communications.mp3
 ...
 ```
 
