@@ -223,6 +223,34 @@ def run_transcribe_full()     -> None: run_transcribe(mode="full")
 def run_transcribe_segments() -> None: run_transcribe(mode="segments")
 
 
+_LINE_TS_PATTERN = re.compile(r"^\[(\d{2}:\d{2}:\d{2}) --> (\d{2}:\d{2}:\d{2})\](.*)$")
+
+
+def _hms_to_seconds(hms: str) -> float:
+    h, m, s = hms.split(":")
+    return int(h) * 3600 + int(m) * 60 + int(s)
+
+
+def _add_absolute_timestamps(raw: str, offset: float) -> str:
+    """Annotate each transcribed line with its absolute time in the original
+    recording, alongside the existing chunk-relative timestamp:
+
+        [00:00:00 --> 00:00:16] text
+        -> [00:00:00 --> 00:00:16] [00:03:15 --> 00:03:31] text
+    """
+    out_lines = []
+    for line in raw.splitlines():
+        m = _LINE_TS_PATTERN.match(line)
+        if not m:
+            out_lines.append(line)
+            continue
+        rel_start, rel_end, rest = m.groups()
+        abs_start = format_hms(offset + _hms_to_seconds(rel_start))
+        abs_end = format_hms(offset + _hms_to_seconds(rel_end))
+        out_lines.append(f"[{rel_start} --> {rel_end}] [Real:{abs_start} --> {abs_end}]{rest}")
+    return "\n".join(out_lines)
+
+
 def _transcribe_segmented(stem: str, chunks_dir: str, transcribe_fn, segments_meta: list[dict] = []) -> str:
     chunk_files = sorted(
         os.path.join(chunks_dir, f)
@@ -247,6 +275,7 @@ def _transcribe_segmented(stem: str, chunks_dir: str, transcribe_fn, segments_me
         if seg:
             time_range = f"{format_hms(seg['start'])} - {format_hms(seg['end'])}"
             header = f"## {label}\n*{time_range}*"
+            raw = _add_absolute_timestamps(raw, seg["start"])
         else:
             header = f"## {label}"
         parts.append(f"{header}\n\n{raw}")
