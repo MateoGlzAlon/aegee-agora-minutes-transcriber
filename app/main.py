@@ -247,7 +247,7 @@ def _add_absolute_timestamps(raw: str, offset: float) -> str:
         rel_start, rel_end, rest = m.groups()
         abs_start = format_hms(offset + _hms_to_seconds(rel_start))
         abs_end = format_hms(offset + _hms_to_seconds(rel_end))
-        out_lines.append(f"[{rel_start} --> {rel_end}] [Real:{abs_start} --> {abs_end}]{rest}")
+        out_lines.append(f"[{rel_start} --> {rel_end}] [Real: {abs_start} --> {abs_end}]{rest}")
     return "\n".join(out_lines)
 
 
