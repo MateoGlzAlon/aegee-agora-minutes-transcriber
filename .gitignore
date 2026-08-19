@@ -6,10 +6,6 @@ daemon.log
 
 app/__pycache__/
 
-daemon.log
-
-.claude/*
-
 data/status/*
 
 01-tools/01-wma_to_mp3/input/*

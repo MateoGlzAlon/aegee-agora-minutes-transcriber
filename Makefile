@@ -113,9 +113,9 @@ logs:
 wma_processing:
 	$(MAKE) -C 01-tools/01-wma_to_mp3 convert
 
-# Requires: pip install -r 00-pdf_merger/requirements.txt (separate from the main venv)
+# First run: make -C 00-pdf_merger setup (installs its deps, separate from the main venv)
 pdf_merger:
-	cd 00-pdf_merger && python3 pdf_to_merger.py
+	$(MAKE) -C 00-pdf_merger merge
 
 # ── Cleanup ───────────────────────────────────────────────────────────────────
 
