@@ -388,7 +388,7 @@ also builds a PPTX with a title slide per source document (useful for importing 
 material into a slide deck).
 
 ```bash
-pip install -r 00-pdf_merger/requirements.txt
+make -C 00-pdf_merger setup   # installs PyMuPDF, python-pptx, PyYAML (only needed once)
 
 # Place source PDFs in 00-pdf_merger/input/, then define groups in
 # 00-pdf_merger/order.yaml (see the file for the expected format —
