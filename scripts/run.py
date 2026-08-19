@@ -200,6 +200,11 @@ def cmd_help():
     make clean-raw    Remove raw transcripts (data/04_raw/)
     make reset        Stop daemon + remove all generated files
     make everything   Full one-shot: reset -> run all stages
+
+  Utilities:
+
+    make lint_segments   Validate segment files in data/02_segments/ (FILES=... to limit)
+    make wma_processing  Convert legacy .wma recordings to .mp3 (01-tools/01-wma_to_mp3/)
 """)
 
 

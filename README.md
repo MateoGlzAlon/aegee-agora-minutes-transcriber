@@ -73,6 +73,8 @@ You can re-run any stage at any time without duplicating work.
 | `make clean-raw` | Remove raw transcripts (`data/04_raw/`) |
 | `make reset` | Stop daemon + remove all generated files |
 | `make everything` | Clean slate → run all stages |
+| `make lint_segments` | Validate segment definition files in `data/02_segments/` (pass `FILES=...` to limit) |
+| `make wma_processing` | Convert legacy `.wma` recordings to `.mp3` via `01-tools/01-wma_to_mp3/` |
 
 Each stage target (`extract`, `segment`, `transcribe`, `enhance`, `all`) automatically uses the daemon when it is running and falls back to running directly when it is not — so all targets work with or without `make up`.
 
