@@ -6,7 +6,7 @@ PIP            = $(VENV)/bin/pip
 
 .PHONY: help setup up down extract segment transcribe transcribe-full transcribe-segments \
         enhance all run status logs clean clean-status clean-raw reset everything lint_segments \
-        wma_processing
+        wma_processing pdf_merger
 
 help: $(VENV)/.deps
 	$(PYTHON) scripts/run.py help
@@ -112,6 +112,10 @@ logs:
 
 wma_processing:
 	$(MAKE) -C 01-tools/01-wma_to_mp3 convert
+
+# Requires: pip install -r 00-pdf_merger/requirements.txt (separate from the main venv)
+pdf_merger:
+	cd 00-pdf_merger && python3 pdf_to_merger.py
 
 # ── Cleanup ───────────────────────────────────────────────────────────────────
 

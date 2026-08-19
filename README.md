@@ -75,6 +75,7 @@ You can re-run any stage at any time without duplicating work.
 | `make everything` | Clean slate → run all stages |
 | `make lint_segments` | Validate segment definition files in `data/02_segments/` (pass `FILES=...` to limit) |
 | `make wma_processing` | Convert legacy `.wma` recordings to `.mp3` via `01-tools/01-wma_to_mp3/` |
+| `make pdf_merger` | Merge plenary PDFs into PDF + PPTX via `00-pdf_merger/` (see [Optional Tools](#optional-tools)) |
 
 Each stage target (`extract`, `segment`, `transcribe`, `enhance`, `all`) automatically uses the daemon when it is running and falls back to running directly when it is not — so all targets work with or without `make up`.
 
@@ -375,6 +376,45 @@ Set via the `WHISPER_MODEL` environment variable before running any stage.
 
 ---
 
+## Optional Tools
+
+Standalone utilities that live alongside the transcription pipeline but aren't part of
+it — each has its own dependencies and is run independently.
+
+### `00-pdf_merger/` — merge plenary PDFs into one PDF + PPTX
+
+Merges a set of session PDFs (presentations, reports) into a single combined PDF, and
+also builds a PPTX with a title slide per source document (useful for importing session
+material into a slide deck).
+
+```bash
+pip install -r 00-pdf_merger/requirements.txt
+
+# Place source PDFs in 00-pdf_merger/input/, then define groups in
+# 00-pdf_merger/order.yaml (see the file for the expected format —
+# each entry lists a name and the ordered list of PDFs to merge).
+
+make pdf_merger
+```
+
+Output goes to `00-pdf_merger/output/merged_pdfs/<name>.pdf` and
+`00-pdf_merger/output/output_pptx_import/<name>.pptx`.
+
+### `01-tools/01-wma_to_mp3/` — convert legacy WMA recordings to MP3
+
+Converts old `.wma` recordings to `.mp3` so they can be dropped into `data/03_audio/`
+for transcription.
+
+```bash
+# Place .wma files in 01-tools/01-wma_to_mp3/input/, then:
+make wma_processing
+```
+
+Output goes to `01-tools/01-wma_to_mp3/output/`. Requires `ffmpeg` (already a
+prerequisite for the main pipeline).
+
+---
+
 ## Project Structure
 
 ```
@@ -385,7 +425,6 @@ Set via the `WHISPER_MODEL` environment variable before running any stage.
 │   ├── transcription.py  # Whisper-based audio transcription
 │   ├── video.py          # Video to audio extraction
 │   ├── segmentation.py   # Audio splitting by time segments
-│   ├── diarization.py    # Speaker diarization stub (not yet active)
 │   └── requirements.txt
 ├── scripts/
 │   └── run.py            # Helper called by the Makefile
@@ -397,6 +436,9 @@ Set via the `WHISPER_MODEL` environment variable before running any stage.
 │   ├── 05_output/           # Final transcripts
 │   ├── substitutions.txt    # Substitution rules for Stage 4
 │   └── status/              # Stage completion markers
+├── 00-pdf_merger/         # Optional: merge plenary PDFs into PDF + PPTX (see Optional Tools)
+├── 01-tools/
+│   └── 01-wma_to_mp3/     # Optional: convert legacy WMA recordings to MP3 (see Optional Tools)
 ├── Makefile
 └── daemon.log             # Daemon output (created on first `make up`)
 ```

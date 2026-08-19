@@ -205,6 +205,7 @@ def cmd_help():
 
     make lint_segments   Validate segment files in data/02_segments/ (FILES=... to limit)
     make wma_processing  Convert legacy .wma recordings to .mp3 (01-tools/01-wma_to_mp3/)
+    make pdf_merger      Merge plenary PDFs into PDF + PPTX (00-pdf_merger/, see README)
 """)
 
 
