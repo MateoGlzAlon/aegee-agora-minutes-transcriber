@@ -2,6 +2,7 @@
 .vscode/
 .venv/
 .claude/
+daemon.log
 
 app/__pycache__/
 
@@ -11,8 +12,8 @@ daemon.log
 
 data/status/*
 
-01-WMA_audio_processing/input/*
-!01-WMA_audio_processing/input/.gitkeep
+01-tools/01-wma_to_mp3/input/*
+!01-tools/01-wma_to_mp3/input/.gitkeep
 
-01-WMA_audio_processing/output/*
-!01-WMA_audio_processing/output/.gitkeep
+01-tools/01-wma_to_mp3/output/*
+!01-tools/01-wma_to_mp3/output/.gitkeep

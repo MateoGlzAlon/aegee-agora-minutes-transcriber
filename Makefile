@@ -5,7 +5,8 @@ PYTHON         = $(VENV)/bin/python
 PIP            = $(VENV)/bin/pip
 
 .PHONY: help setup up down extract segment transcribe transcribe-full transcribe-segments \
-        enhance all run status logs clean clean-status clean-raw reset everything lint_segments
+        enhance all run status logs clean clean-status clean-raw reset everything lint_segments \
+        wma_processing
 
 help: $(VENV)/.deps
 	$(PYTHON) scripts/run.py help
@@ -110,7 +111,7 @@ logs:
 	@tail -f daemon.log 2>/dev/null || echo "No daemon log found. Start the daemon with: make up"
 
 wma_processing:
-	cd 01-WMA_audio_processing && ./process_audio.sh
+	$(MAKE) -C 01-tools/01-wma_to_mp3 convert
 
 # ── Cleanup ───────────────────────────────────────────────────────────────────
 
